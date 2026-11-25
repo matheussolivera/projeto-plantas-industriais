@@ -1,0 +1,11 @@
+id_planta,planta,cidade,estado,latitude,longitude,ano_inicio_operacao,area_m2,funcionarios,nivel_automacao,linhas_automatizadas,certificacao_iso9001
+1,Automax Industrial,São Bernardo do Campo,SP,"-23,69","-46,56",2014,57921,500,Médio,25,Sim
+2,Fábrica Digital ABC,São Paulo,SP,"-23,55","-46,63",2012,56435,1653,Alto,16,Não
+3,Indústria Conecta,Campinas,SP,"-22,91","-47,06",2008,46232,1114,Alto,9,Sim
+4,NeoAutomação,Joinville,SC,"-26,30","-48,85",2007,54478,1498,Alto,24,Sim
+5,SmartFactory Sul,Curitiba,PR,"-25,43","-49,27",2004,36483,735,Médio,10,Sim
+6,Robótica Vale,Caxias do Sul,RS,"-29,17","-51,18",2018,12631,980,Médio,4,Sim
+7,TecnoProcessos,Betim,MG,"-19,97","-44,20",2005,35528,662,Médio,5,Sim
+8,Linha 4.0 Brasil,Sorocaba,SP,"-23,50","-47,45",2003,20707,2106,Muito alto,7,Sim
+9,ControleMax,Manaus,AM,"-3,12","-60,02",2004,70174,403,Muito alto,21,Não
+10,Sistemas Industriais Norte,Recife,PE,"-8,05","-34,88",2014,51686,756,Muito alto,17,Não
