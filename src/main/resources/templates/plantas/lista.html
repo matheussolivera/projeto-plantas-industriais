@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Plantas Industriais')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-1">Catálogo de Plantas Industriais</h2>
+            <p class="text-muted small mb-0">
+                Exibindo <strong th:text="${#lists.size(plantas)}">0</strong> unidade(s) industrial(is).
+            </p>
+        </div>
+        <a th:href="@{/plantas/nova}" class="btn btn-primary mt-2 mt-md-0" sec:authorize="hasRole('ADMIN')">
+            <i class="bi bi-plus-circle me-1"></i>Cadastrar Planta
+        </a>
+    </div>
+
+    <!-- Filtros Combinados no Servidor -->
+    <div class="card card-clean mb-4">
+        <div class="card-body">
+            <form th:action="@{/plantas}" method="get" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Busca (nome, cidade ou código)</label>
+                    <input type="text" name="termo" class="form-control form-control-sm"
+                           th:value="${filtroTermo}" placeholder="Ex.: Automax, SP, PLT...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">UF</label>
+                    <select name="ufId" class="form-select form-select-sm">
+                        <option value="">Todas</option>
+                        <option th:each="u : ${ufs}" th:value="${u.id}"
+                                th:text="${u.sigla + ' - ' + u.nome}"
+                                th:selected="${filtroUfId != null and filtroUfId == u.id}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Automação</label>
+                    <select name="nivel" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option th:each="n : ${niveis}" th:value="${n}"
+                                th:text="${n.descricao}"
+                                th:selected="${filtroNivel != null and filtroNivel == n}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Status</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option th:each="s : ${statuses}" th:value="${s}"
+                                th:text="${s.descricao}"
+                                th:selected="${filtroStatus != null and filtroStatus == s}"></option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label small fw-semibold">ISO 9001</label>
+                    <select name="iso9001" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option value="true" th:selected="${filtroIso9001 != null and filtroIso9001}">Sim</option>
+                        <option value="false" th:selected="${filtroIso9001 != null and !filtroIso9001}">Não</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-1">
+                    <button type="submit" class="btn btn-dark btn-sm flex-grow-1">
+                        <i class="bi bi-funnel me-1"></i>Filtrar
+                    </button>
+                    <a th:href="@{/plantas}" class="btn btn-outline-secondary btn-sm" title="Limpar filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela Responsiva -->
+    <div class="card card-clean">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Planta</th>
+                    <th>Cidade / UF</th>
+                    <th>Automação</th>
+                    <th class="text-end">Funcionários</th>
+                    <th class="text-center">ISO 9001</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(plantas)}">
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        Nenhuma planta encontrada com os filtros informados.
+                    </td>
+                </tr>
+                <tr th:each="p : ${plantas}">
+                    <td><code class="fw-semibold" th:text="${p.codigoPlanta}">PLT-SP-001</code></td>
+                    <td>
+                        <a th:href="@{/plantas/{id}(id=${p.id})}" class="fw-semibold text-decoration-none"
+                           th:text="${p.nome}">Automax Industrial</a>
+                        <div class="small text-muted">Início: <span th:text="${p.anoInicioOperacao}">2014</span></div>
+                    </td>
+                    <td>
+                        <span th:text="${p.cidade}">São Paulo</span> -
+                        <span class="badge bg-light text-dark border" th:text="${p.uf.sigla}">SP</span>
+                    </td>
+                    <td>
+                        <span th:class="'badge bg-' + ${p.nivelAutomacao.badgeCss}"
+                              th:text="${p.nivelAutomacao.descricao}">Alto</span>
+                        <div class="small text-muted" th:text="${p.linhasAutomatizadas} + ' linhas'">10 linhas</div>
+                    </td>
+                    <td class="text-end" th:text="${#numbers.formatInteger(p.funcionarios, 1, 'POINT')}">500</td>
+                    <td class="text-center">
+                        <span th:if="${p.certificacaoIso9001}" class="badge bg-success-subtle text-success border border-success-subtle">
+                            <i class="bi bi-patch-check-fill me-1"></i>Sim
+                        </span>
+                        <span th:unless="${p.certificacaoIso9001}" class="badge bg-secondary-subtle text-secondary border">
+                            Não
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:class="'badge bg-' + ${p.status.badgeCss}" th:text="${p.status.descricao}">Ativa</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a th:href="@{/plantas/{id}(id=${p.id})}" class="btn btn-sm btn-outline-primary" title="Detalhes">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a th:href="@{/plantas/{id}/editar(id=${p.id})}"
+                           class="btn btn-sm btn-outline-secondary"
+                           sec:authorize="hasRole('ADMIN')"
+                           th:if="${p.status.name() != 'DESATIVADA'}" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

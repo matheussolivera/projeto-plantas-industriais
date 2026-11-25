@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Acesso Negado (403)')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container text-center py-5">
+    <div class="display-1 text-danger mb-3"><i class="bi bi-shield-lock"></i></div>
+    <h2 class="fw-bold">403 — Acesso Negado</h2>
+    <p class="text-muted mb-4">
+        Seu perfil atual não possui autorização no servidor para executar esta operação.
+    </p>
+    <a th:href="@{/dashboard}" class="btn btn-primary">Voltar ao Dashboard</a>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

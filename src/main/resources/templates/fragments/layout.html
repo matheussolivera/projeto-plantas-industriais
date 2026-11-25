@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' | Plantas Industriais'">Plantas Industriais</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/dashboard}">
+            <i class="bi bi-building-gear me-2 text-primary"></i>Indústria 4.0 | Plantas
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${paginaAtual == 'dashboard'} ? 'active fw-semibold'"
+                       th:href="@{/dashboard}">
+                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${paginaAtual == 'plantas'} ? 'active fw-semibold'"
+                       th:href="@{/plantas}">
+                        <i class="bi bi-buildings me-1"></i>Plantas Industriais
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:classappend="${paginaAtual == 'auditoria'} ? 'active fw-semibold'"
+                       th:href="@{/auditoria}">
+                        <i class="bi bi-clock-history me-1"></i>Auditoria
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center gap-3 text-light">
+                <span class="small">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <strong sec:authentication="name">usuario</strong>
+                    <span class="badge bg-primary ms-1" sec:authorize="hasRole('ADMIN')">ADMIN</span>
+                    <span class="badge bg-secondary ms-1" sec:authorize="hasRole('OPERADOR')">OPERADOR</span>
+                </span>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>Sair
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div th:fragment="alerts" class="container">
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${sucesso}">Operação concluída.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erro}">Erro na operação.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<footer th:fragment="footer" class="bg-white border-top py-3 mt-5">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center text-muted small">
+        <span>ESEG — Engenharia de Computação | Programação Web (2S2026)</span>
+        <span>Modernização de Sistema Legado — Spring Boot + JPA + Security + Thymeleaf</span>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</footer>
+
+</body>
+</html>

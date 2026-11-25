@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(${planta.nome})}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+    <!-- Cabecalho -->
+    <div class="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <code class="fs-6" th:text="${planta.codigoPlanta}">PLT-SP-001</code>
+                <span th:class="'badge bg-' + ${planta.status.badgeCss}" th:text="${planta.status.descricao}">Ativa</span>
+                <span th:if="${planta.certificacaoIso9001}" class="badge bg-success">ISO 9001</span>
+            </div>
+            <h2 class="fw-bold mb-1" th:text="${planta.nome}">Nome da Planta</h2>
+            <p class="text-muted mb-0">
+                <i class="bi bi-geo-alt-fill me-1"></i>
+                <span th:text="${planta.cidade + ' / ' + planta.uf.sigla + ' (' + planta.uf.regiao + ')'}">Cidade / SP</span>
+                &nbsp;|&nbsp;
+                Coordenadas: <span th:text="${planta.latitude + ', ' + planta.longitude}">-23.69, -46.56</span>
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a th:href="@{/plantas}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Voltar
+            </a>
+            <a th:href="@{/plantas/{id}/editar(id=${planta.id})}"
+               class="btn btn-outline-primary btn-sm"
+               sec:authorize="hasRole('ADMIN')"
+               th:if="${planta.status.name() != 'DESATIVADA'}">
+                <i class="bi bi-pencil me-1"></i>Editar Dados
+            </a>
+            <form th:action="@{/plantas/{id}/excluir(id=${planta.id})}" method="post"
+                  sec:authorize="hasRole('ADMIN')"
+                  th:if="${planta.status.name() == 'DESATIVADA'}"
+                  onsubmit="return confirm('Confirma a exclusão permanente desta planta desativada?');">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i>Excluir Planta
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Indicadores da Planta -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card card-clean p-3">
+                <div class="small text-muted">Área Construída</div>
+                <div class="fs-5 fw-bold" th:text="${#numbers.formatInteger(planta.areaM2, 1, 'POINT')} + ' m²'">50.000 m²</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-clean p-3">
+                <div class="small text-muted">Funcionários / Densidade</div>
+                <div class="fs-5 fw-bold">
+                    <span th:text="${#numbers.formatInteger(planta.funcionarios, 1, 'POINT')}">500</span>
+                    <span class="small fw-normal text-muted" th:text="'(' + ${planta.areaPorFuncionario} + ' m²/func)'"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-clean p-3">
+                <div class="small text-muted">Automação</div>
+                <div class="fs-5 fw-bold">
+                    <span th:text="${planta.nivelAutomacao.descricao}">Alto</span>
+                    <span class="small fw-normal text-muted" th:text="'(' + ${planta.linhasAutomatizadas} + ' linhas)'"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card card-clean p-3">
+                <div class="small text-muted">Operando Desde</div>
+                <div class="fs-5 fw-bold" th:text="${planta.anoInicioOperacao}">2014</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Coluna Esquerda: Linhas de Producao (Associacao 1:N) -->
+        <div class="col-lg-7">
+            <div class="card card-clean mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold"><i class="bi bi-diagram-3 me-1 text-primary"></i>Linhas de Produção Monitoradas</span>
+                    <span class="badge bg-secondary" th:text="${#lists.size(linhas)} + ' cadastrada(s)'">0</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive mb-3">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nome / Tecnologia</th>
+                                <th class="text-end">Cap./h</th>
+                                <th class="text-center">Situação</th>
+                                <th class="text-end">Ações</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(linhas)}">
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    Nenhuma linha detalhada cadastrada nesta planta.
+                                </td>
+                            </tr>
+                            <tr th:each="l : ${linhas}">
+                                <td><code th:text="${l.codigoLinha}">LN-01</code></td>
+                                <td>
+                                    <div class="fw-semibold" th:text="${l.nome}">Linha 1</div>
+                                    <div class="small text-muted" th:text="${l.tipoAutomacao}">CLP</div>
+                                </td>
+                                <td class="text-end" th:text="${l.capacidadeHora}">200</td>
+                                <td class="text-center">
+                                    <span th:if="${l.ativa}" class="badge bg-success">Ativa</span>
+                                    <span th:unless="${l.ativa}" class="badge bg-secondary">Inativa</span>
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <form th:action="@{/plantas/{pid}/linhas/{lid}/alternar(pid=${planta.id}, lid=${l.id})}"
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-warning btn-sm"
+                                                th:title="${l.ativa} ? 'Inativar linha' : 'Ativar linha'">
+                                            <i class="bi bi-power"></i>
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/plantas/{pid}/linhas/{lid}/excluir(pid=${planta.id}, lid=${l.id})}"
+                                          method="post" class="d-inline" sec:authorize="hasRole('ADMIN')"
+                                          onsubmit="return confirm('Remover esta linha de produção?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Remover linha">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Form de Nova Linha (permitido para ADMIN e OPERADOR enquanto planta nao estiver DESATIVADA) -->
+                    <div th:if="${planta.status.name() != 'DESATIVADA'}" class="border-top pt-3">
+                        <h6 class="fw-bold mb-2">Adicionar Linha de Produção</h6>
+                        <form th:action="@{/plantas/{id}/linhas(id=${planta.id})}"
+                              th:object="${linhaForm}" method="post" class="row g-2">
+                            <div class="col-md-3">
+                                <input type="text" th:field="*{codigoLinha}" class="form-control form-control-sm"
+                                       placeholder="Código (LN-01)" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" th:field="*{nome}" class="form-control form-control-sm"
+                                       placeholder="Nome da linha" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" th:field="*{tipoAutomacao}" class="form-control form-control-sm"
+                                       placeholder="Tipo (Robótica/CLP)" required>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" th:field="*{capacidadeHora}" class="form-control form-control-sm"
+                                       placeholder="Cap/h" min="1" required>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-plus-lg me-1"></i>Vincular Linha
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna Direita: Maquina de Estados & Auditoria -->
+        <div class="col-lg-5">
+            <!-- Painel de Transicao de Status (ADMIN) -->
+            <div class="card card-clean mb-4" sec:authorize="hasRole('ADMIN')">
+                <div class="card-header bg-white fw-bold">
+                    <i class="bi bi-arrow-repeat me-1 text-primary"></i>Gestão de Ciclo de Vida (Status)
+                </div>
+                <div class="card-body">
+                    <div th:if="${#sets.isEmpty(transicoesPermitidas)}" class="alert alert-secondary small mb-0">
+                        <i class="bi bi-lock-fill me-1"></i>
+                        Esta planta encontra-se no estado terminal <strong>DESATIVADA</strong>. Nenhuma nova transição é permitida.
+                    </div>
+
+                    <form th:unless="${#sets.isEmpty(transicoesPermitidas)}"
+                          th:action="@{/plantas/{id}/status(id=${planta.id})}"
+                          th:object="${transicaoForm}" method="post">
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold">Transição Permitida a partir de
+                                <span th:text="${planta.status.descricao}">Ativa</span>:</label>
+                            <select th:field="*{novoStatus}" class="form-select form-select-sm" required>
+                                <option value="">Selecione o próximo status...</option>
+                                <option th:each="st : ${transicoesPermitidas}" th:value="${st}"
+                                        th:text="${st.descricao}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Justificativa Obrigatória *</label>
+                            <textarea th:field="*{justificativa}" rows="2" class="form-control form-control-sm"
+                                      placeholder="Descreva o motivo técnico/operacional (mín. 5 caracteres)..."
+                                      minlength="5" maxlength="300" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-sm w-100">
+                            <i class="bi bi-shield-check me-1"></i>Executar Transição Auditada
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Historico de Status -->
+            <div class="card card-clean">
+                <div class="card-header bg-white fw-bold">
+                    <i class="bi bi-clock-history me-1 text-primary"></i>Histórico de Auditoria da Planta
+                </div>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item" th:each="h : ${historico}">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div>
+                                <span th:if="${h.statusAnterior != null}" class="badge bg-light text-dark border"
+                                      th:text="${h.statusAnterior.descricao}">Anterior</span>
+                                <i th:if="${h.statusAnterior != null}" class="bi bi-arrow-right mx-1 text-muted"></i>
+                                <span th:class="'badge bg-' + ${h.statusNovo.badgeCss}"
+                                      th:text="${h.statusNovo.descricao}">Novo</span>
+                            </div>
+                            <small class="text-muted" th:text="${#temporals.format(h.alteradoEm, 'dd/MM/yyyy HH:mm')}">Data</small>
+                        </div>
+                        <p class="small mb-1" th:text="${h.justificativa}">Justificativa</p>
+                        <div class="small text-muted">
+                            <i class="bi bi-person me-1"></i><span th:text="${h.alteradoPor}">admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

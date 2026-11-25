@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Dashboard Operacional')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: alerts}"></div>
+
+<main class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Dashboard de Plantas Industriais</h2>
+            <p class="text-muted mb-0">Indicadores consolidados a partir da base normalizada e migrada do legado.</p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a th:href="@{/plantas}" class="btn btn-outline-primary">
+                <i class="bi bi-table me-1"></i>Ver Catálogo
+            </a>
+            <a th:href="@{/plantas/nova}" class="btn btn-primary" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-plus-lg me-1"></i>Nova Planta
+            </a>
+        </div>
+    </div>
+
+    <!-- Cards de KPI -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3">
+                <div class="text-muted small fw-semibold">TOTAL DE PLANTAS</div>
+                <div class="kpi-value" th:text="${kpis.totalPlantas}">0</div>
+                <div class="small text-success">
+                    <span th:text="${kpis.plantasAtivas}">0</span> em operação ativa
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3" style="border-left-color: #16a34a;">
+                <div class="text-muted small fw-semibold">CERTIFICAÇÃO ISO 9001</div>
+                <div class="kpi-value" th:text="${kpis.percentualIso9001} + '%'">0%</div>
+                <div class="small text-muted">Conformidade de qualidade</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3" style="border-left-color: #d97706;">
+                <div class="text-muted small fw-semibold">TOTAL DE FUNCIONÁRIOS</div>
+                <div class="kpi-value" th:text="${#numbers.formatInteger(kpis.totalFuncionarios, 1, 'POINT')}">0</div>
+                <div class="small text-muted">
+                    Área total: <span th:text="${#numbers.formatInteger(kpis.areaTotalM2, 1, 'POINT')}">0</span> m²
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="card kpi-card p-3" style="border-left-color: #7c3aed;">
+                <div class="text-muted small fw-semibold">LINHAS AUTOMATIZADAS</div>
+                <div class="kpi-value" th:text="${kpis.totalLinhasAutomatizadas}">0</div>
+                <div class="small text-muted">Parque industrial consolidado</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabelas de Distribuicao -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card card-clean h-100">
+                <div class="card-header bg-white fw-bold">
+                    <i class="bi bi-geo-alt me-1 text-primary"></i>Distribuição por Região
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr><th>Região</th><th class="text-end">Plantas</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="entry : ${kpis.porRegiao}">
+                            <td th:text="${entry.key}">Sudeste</td>
+                            <td class="text-end fw-semibold" th:text="${entry.value}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-clean h-100">
+                <div class="card-header bg-white fw-bold">
+                    <i class="bi bi-cpu me-1 text-primary"></i>Por Nível de Automação
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr><th>Nível</th><th class="text-end">Plantas</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="entry : ${kpis.porNivelAutomacao}">
+                            <td th:text="${entry.key}">Alto</td>
+                            <td class="text-end fw-semibold" th:text="${entry.value}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-clean h-100">
+                <div class="card-header bg-white fw-bold">
+                    <i class="bi bi-activity me-1 text-primary"></i>Por Status Operacional
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr><th>Status</th><th class="text-end">Plantas</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="entry : ${kpis.porStatus}">
+                            <td th:text="${entry.key}">Ativa</td>
+                            <td class="text-end fw-semibold" th:text="${entry.value}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

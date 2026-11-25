@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${modoEdicao} ? 'Editar Planta' : 'Nova Planta')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold mb-0" th:text="${modoEdicao} ? 'Editar Planta Industrial' : 'Cadastrar Nova Planta Industrial'">
+            Planta Industrial
+        </h2>
+        <a th:href="@{/plantas}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Voltar ao catálogo
+        </a>
+    </div>
+
+    <div th:if="${erroFormulario}" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${erroFormulario}">Erro de regra de negócio.</span>
+    </div>
+
+    <div class="card card-clean">
+        <div class="card-body p-4">
+            <form th:action="${modoEdicao} ? @{/plantas/{id}/editar(id=${plantaForm.id})} : @{/plantas/nova}"
+                  th:object="${plantaForm}" method="post" novalidate>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Código da Planta *</label>
+                        <input type="text" th:field="*{codigoPlanta}"
+                               th:classappend="${#fields.hasErrors('codigoPlanta')} ? 'is-invalid'"
+                               class="form-control" placeholder="Ex.: PLT-SP-011">
+                        <div class="invalid-feedback" th:errors="*{codigoPlanta}"></div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Nome da Planta *</label>
+                        <input type="text" th:field="*{nome}"
+                               th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid'"
+                               class="form-control" placeholder="Ex.: Unidade Automação Paulista">
+                        <div class="invalid-feedback" th:errors="*{nome}"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Cidade *</label>
+                        <input type="text" th:field="*{cidade}"
+                               th:classappend="${#fields.hasErrors('cidade')} ? 'is-invalid'"
+                               class="form-control" placeholder="Ex.: São Bernardo do Campo">
+                        <div class="invalid-feedback" th:errors="*{cidade}"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Unidade Federativa (UF) *</label>
+                        <select th:field="*{ufId}"
+                                th:classappend="${#fields.hasErrors('ufId')} ? 'is-invalid'"
+                                class="form-select">
+                            <option value="">Selecione...</option>
+                            <option th:each="u : ${ufs}" th:value="${u.id}"
+                                    th:text="${u.sigla + ' - ' + u.nome + ' (' + u.regiao + ')'}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{ufId}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Latitude (-90 a 90) *</label>
+                        <input type="number" step="0.000001" th:field="*{latitude}"
+                               th:classappend="${#fields.hasErrors('latitude')} ? 'is-invalid'"
+                               class="form-control" placeholder="-23.550520">
+                        <div class="invalid-feedback" th:errors="*{latitude}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Longitude (-180 a 180) *</label>
+                        <input type="number" step="0.000001" th:field="*{longitude}"
+                               th:classappend="${#fields.hasErrors('longitude')} ? 'is-invalid'"
+                               class="form-control" placeholder="-46.633308">
+                        <div class="invalid-feedback" th:errors="*{longitude}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Ano Início Operação *</label>
+                        <input type="number" th:field="*{anoInicioOperacao}"
+                               th:classappend="${#fields.hasErrors('anoInicioOperacao')} ? 'is-invalid'"
+                               class="form-control" placeholder="2026">
+                        <div class="invalid-feedback" th:errors="*{anoInicioOperacao}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Área Construída (m²) *</label>
+                        <input type="number" th:field="*{areaM2}"
+                               th:classappend="${#fields.hasErrors('areaM2')} ? 'is-invalid'"
+                               class="form-control" placeholder="25000">
+                        <div class="invalid-feedback" th:errors="*{areaM2}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Funcionários *</label>
+                        <input type="number" th:field="*{funcionarios}"
+                               th:classappend="${#fields.hasErrors('funcionarios')} ? 'is-invalid'"
+                               class="form-control" placeholder="450">
+                        <div class="invalid-feedback" th:errors="*{funcionarios}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Linhas Automatizadas *</label>
+                        <input type="number" th:field="*{linhasAutomatizadas}"
+                               th:classappend="${#fields.hasErrors('linhasAutomatizadas')} ? 'is-invalid'"
+                               class="form-control" placeholder="12">
+                        <div class="invalid-feedback" th:errors="*{linhasAutomatizadas}"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Nível de Automação *</label>
+                        <select th:field="*{nivelAutomacao}"
+                                th:classappend="${#fields.hasErrors('nivelAutomacao')} ? 'is-invalid'"
+                                class="form-select">
+                            <option value="">Selecione...</option>
+                            <option th:each="n : ${niveis}" th:value="${n}" th:text="${n.descricao}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{nivelAutomacao}"></div>
+                    </div>
+
+                    <div class="col-md-4" th:if="${!modoEdicao}">
+                        <label class="form-label fw-semibold">Status Inicial *</label>
+                        <select th:field="*{statusInicial}" class="form-select">
+                            <option th:each="s : ${statusesIniciais}" th:value="${s}" th:text="${s.descricao}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch"
+                                   id="isoSwitch" th:field="*{certificacaoIso9001}">
+                            <label class="form-check-label fw-semibold" for="isoSwitch">
+                                Possui Certificação ISO 9001
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <div class="d-flex justify-content-end gap-2">
+                    <a th:href="@{/plantas}" class="btn btn-outline-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i>
+                        <span th:text="${modoEdicao} ? 'Salvar Alterações' : 'Cadastrar Planta'">Salvar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

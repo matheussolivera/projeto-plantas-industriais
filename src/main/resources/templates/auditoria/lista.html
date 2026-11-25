@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Auditoria de Status')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container">
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">Trilha de Auditoria de Ciclo de Vida</h2>
+        <p class="text-muted mb-0">Registro consolidado de todas as transições de status realizadas no sistema (acesso exclusivo ADMIN).</p>
+    </div>
+
+    <div class="card card-clean">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>Data / Hora</th>
+                    <th>Planta</th>
+                    <th>Transição</th>
+                    <th>Justificativa</th>
+                    <th>Responsável</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${registros}">
+                    <td class="text-nowrap small" th:text="${#temporals.format(r.alteradoEm, 'dd/MM/yyyy HH:mm:ss')}">Data</td>
+                    <td>
+                        <a th:href="@{/plantas/{id}(id=${r.planta.id})}" class="fw-semibold text-decoration-none"
+                           th:text="${r.planta.codigoPlanta + ' - ' + r.planta.nome}">Planta</a>
+                    </td>
+                    <td class="text-nowrap">
+                        <span th:if="${r.statusAnterior != null}" class="badge bg-light text-dark border"
+                              th:text="${r.statusAnterior.descricao}">Anterior</span>
+                        <span th:if="${r.statusAnterior == null}" class="badge bg-light text-muted border">Inicial</span>
+                        <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                        <span th:class="'badge bg-' + ${r.statusNovo.badgeCss}"
+                              th:text="${r.statusNovo.descricao}">Novo</span>
+                    </td>
+                    <td class="small" th:text="${r.justificativa}">Justificativa</td>
+                    <td><code th:text="${r.alteradoPor}">admin</code></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
